@@ -1,42 +1,58 @@
 
-var todoList = [];
-if (localStorage.getItem('todo') !=undefined) {
-	todoList = JSON.parse(localStorage.getItem('todo'));
-	out();
-}
-
-
-
-
-document.getElementById('add').onclick = function() {
-	var data = document.getElementById('in').value;
-	var temp = {};
-	temp.todo = data;
-	temp.check = false;
-	var i = todoList.length;
-	if (data === '') {
-    alert("Напишіть завдання");
-	}
-	else {
-	todoList[i] = temp;
-	out();
-	localStorage.setItem('todo', JSON.stringify(todoList));
-}
-	document.getElementById('in').value = '';
-}
-
-function out() {
-	var out = '';
-	for(var key in todoList) {
+    function get_todos() {
+        var todos = [];
+        var todos_str = localStorage.getItem('todo');
+        if (todos_str !== null) {
+            todos = JSON.parse(todos_str); 
+        }
+        return todos;
+    }
+     
+    function add() {	
+        var task = document.getElementById('in').value;
 		
-		if (todoList[key].check === true) {
-			out += '<input type="checkbox" checked>.style.textDecoration="line-through"';
+     	if (task === '') {
+			alert('***Напишіть завдання***');
 		}
 		else {
-			out += '<input type="checkbox">';
+			var todos = get_todos();
+			todos.push(task);
+			document.getElementById('in').value = '';
+			localStorage.setItem('todo', JSON.stringify(todos));
+
+			show();
+
+			return false;
 		}
-		out += todoList[key].todo + '<br>';
-		
-	}
-	document.getElementById('out').innerHTML = out;
-}
+    }
+     
+    function remove() {
+        var id = this.getAttribute('id');
+        var todos = get_todos();
+        todos.splice(id, 1);
+        localStorage.setItem('todo', JSON.stringify(todos));
+     
+        show();
+     
+        return false;
+    }
+     
+    function show() {
+        var todos = get_todos();
+     
+        var html = '<ul>';
+        for(var i=0; i<todos.length; i++) {
+            html += '<li>' + todos[i] + '<button class="remove" id="' + i  + '">x</button></li>';
+        };
+        html += '</ul>';
+     
+        document.getElementById('out').innerHTML = html;
+     
+        var buttons = document.getElementsByClassName('remove');
+        for (var i=0; i < buttons.length; i++) {
+            buttons[i].addEventListener('click', remove);
+        };
+    }
+     
+    document.getElementById('add').addEventListener('click', add);
+    show();
